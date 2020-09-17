@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck of Cards</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-down {
+            margin: 0 auto;
+            background-color: rgb(241, 235, 235);
+            position: absolute;
+            top: -240px;
+            transition: top 0.3s;
+            z-index: 2;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .grid-container-icon {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            column-gap: 2%;
+            row-gap: 4%;
+            margin: 3% 3% 3% 10%;
+            min-height: 3vh;
+            max-width: 400px;
+        }
+
+        .dropClose {
+            position: absolute;
+            width: 8%;
+            top: 1%;
+            left: 0.5%;
+        }
+
+        .grid-container {
+            width: 80%;
+            display: grid;
+            grid-template-columns: 1fr;
+            padding-top: 5vh;
+            max-width: 400px;
+        }
+
+        .card-contain {
+            display: grid;
+            grid-template-columns: 13% 74% 13%;
+            position: relative;
+        }
+
+        .front {
+            grid-column: 1/3;
+            grid-row: 1;
+            z-index: 1;
+        }
+
+        .back {
+            grid-column: 2/4;
+            grid-row: 1;
+            position: relative;
+            bottom: 7%;
+            transition: bottom 0.3s;
+        }
+
+        img {
+            width: 100%;
+            display: block;
+        }
+
+        .back:hover {
+            bottom: 15%;
+        }
+
+        .info {
+            position: absolute;
+            top: -12%;
+            left: -8%;
+            width: 13%;
+        }
+
+        button {
+            display: inline;
+            border: none;
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+            background: none;
+            color: none;
+            cursor: pointer;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        .functBtns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: 12vh;
+            gap: 1vh;
+            padding-top: 1vh;
+        }
+
+        .functBtns button {
+            border: 5px solid #F10000;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .functBtns button:hover {
+            border-color: #c70303 ;
+        }
+
+        .functBtns button:nth-of-type(3) {
+            grid-column: 1 / -1;
+        }
+
+        .draw1,
+        .draw2{
+            width: 50%;
+        }
+
+        .shuffle {
+            width: 25%;
+        }
+    </style>
+</head>
+<body>
+    <section class="grid-container">
+        <section class="drop-down">
+            <article class="grid-container-icon">
+            </article>
+            <button class="dropClose">
+                <img src="images/close-red.svg">   
+            </button> 
+        </section>
+
+        <section class="card-contain">
+            <img src="images/card-back-red.svg" class="front">
+            <img src="images/card-back-black.svg" class="back">
+    
+            <button class="info">
+                <img src="images/info-red.svg">
+            </button>
+        </section>
+
+        <section class="functBtns">
+            <button class="drawOneBtn">
+                <div class="functBtnContain draw1">
+                    <img src="images/draw-1.svg" class="draw-1-icon">   
+                </div>
+            </button>
+            <button class="drawTwoBtn">
+                <div class="functBtnContain draw2">
+                    <img src="images/draw-2.svg" class="draw-2-icon">   
+                </div>
+            </button>
+            <button class="shuffleBtn">
+                <div class="functBtnContain shuffle">
+                    <img src="images/shuffle.svg">   
+                </div>
+            </button>
+        </section>
+    </section>
+
+    <script>
+        (function() {
+
+        // -- Classes --
+
+        // Card class
+
+        function Card(value,suit,rank) {
+            this.value = value;
+            this.suit = suit;
+            this.rank = rank;
+        }
+
+        Card.prototype.printName = function() {
+            return `${this.rank} of ${this.suit}`;
+        };
+
+
+        // -- Objects --
+
+        // Deck of cards object
+        let deckObj = {
+            suits: ['hearts','diamonds','spades','clubs'],
+            cards: [[2,'two'],[3,'three'],[4,'four'],[5,'five'],[6,'six'],[7,'seven'],[8,'eight'],[9,'nine'],[10,'ten'],[10,'jack'],[10,'queen'],[10,'king'],[10,'ace']],
+            deck: [],
+
+            // Creates a new deck of 52 cards.
+            shuffle: function() {
+                this.deck = [];
+
+                for (let s=0; s<this.suits.length; s++) {
+                    for (let c=0; c<this.cards.length; c++) {
+                        let card = new Card(this.cards[c][0],this.suits[s],this.cards[c][1]);
+                        this.deck.push(card);   
+                    }
+                }
+            },
+
+            // Picks a random card. Returns it and deletes it from the deck
+            deal: function() {
+                let num = Math.floor(Math.random() * this.deck.length);
+                
+                return this.deck.splice(num,1)[0];
+            }
+        }
+
+        // Drop down menu object
+
+        let dropDownObj = {
+            dropDown: document.querySelector('.drop-down'),
+            gridContain: document.querySelector('.grid-container-icon'),
+            infoBtn: document.querySelector('.info'),
+            closeBtn: document.querySelector('.dropClose'),
+
+            open: function() {
+                dropDownObj.dropDown.style.top = '0px';
+            },
+
+            close: function() {
+                dropDownObj.dropDown.style.top = '-240px';
+            },
+
+            // Creates icon and prepends it to the drop down menu
+            prepend: function(card) {
+                cardStringIcon = `images/icons/${card.rank}-${card.suit}-icon.svg`
+
+                if (this.gridContain.childElementCount === 10) {
+                    this.gridContain.removeChild(this.gridContain.lastElementChild);
+                }
+
+                let container = document.createElement('div');
+                container.setAttribute('class','img-container')
+
+                let image = document.createElement('img');
+                image.setAttribute('src',cardStringIcon);
+
+                container.prepend(image);
+                this.gridContain.prepend(container);
+
+            }
+        }
+
+        // Interface object
+
+        let interfaceObj = {
+            gridContainer: document.querySelector('.grid-container'),
+            frontCard: document.querySelector('.front'),
+            backCard: document.querySelector('.back'),
+            drawOneBtn: document.querySelector('.drawOneBtn'),
+            drawOneIcon: document.querySelector('.draw-1-icon'),
+            drawTwoBtn: document.querySelector('.drawTwoBtn'),
+            drawTwoIcon: document.querySelector('.draw-2-icon'),
+            shuffleBtn: document.querySelector('.shuffleBtn'),
+
+            drawCard: function() {
+                let card = deckObj.deal();
+
+                // Converts absolute url to relative and sets as src on backCard
+                let frontCardSrc = this.frontCard.src.slice(this.frontCard.src.indexOf('images'));
+                this.backCard.setAttribute('src',frontCardSrc);
+
+                // Creates string and sets frontCard src
+                let cardString = `images/${card.rank}-${card.suit}.svg`;
+                this.frontCard.setAttribute('src',cardString);
+
+                dropDownObj.prepend(card)    
+            },
+
+            drawTwoCards: function() {
+                let card = deckObj.deal();
+
+                let cardString = `images/${card.rank}-${card.suit}.svg`;
+
+                this.backCard.setAttribute('src',cardString);
+
+                dropDownObj.prepend(card)  
+
+                card = deckObj.deal();
+
+                cardString = `images/${card.rank}-${card.suit}.svg`;
+
+                this.frontCard.setAttribute('src',cardString);
+
+                dropDownObj.prepend(card)  
+
+            },
+
+            cardsLeft: function() {
+                if (deckObj.deck.length < 1) {
+                    this.drawOneBtn.disabled = true;
+                    this.drawOneBtn.style.borderColor = 'lightgrey';
+                    this.drawOneIcon.setAttribute('src','images/draw-1-grey.svg');
+
+                    this.drawTwoBtn.disabled = true;
+                    this.drawTwoBtn.style.borderColor = 'lightgrey';
+                    this.drawTwoIcon.setAttribute('src','images/draw-2-grey.svg');
+                } else if (deckObj.deck.length < 2) {
+                    this.drawTwoBtn.disabled = true;
+                    this.drawTwoBtn.style.borderColor = 'lightgrey';
+                    this.drawTwoIcon.setAttribute('src','images/draw-2-grey.svg');
+                }
+            },
+
+            shuffleDeck: function() {
+                deckObj.shuffle()
+
+                // Reset draw btns
+                this.drawOneBtn.disabled = false;
+                this.drawOneBtn.style.borderColor = '#F10000';
+                this.drawOneIcon.setAttribute('src','images/draw-1.svg');
+
+                this.drawTwoBtn.disabled = false;
+                this.drawTwoBtn.style.borderColor = '#F10000';
+                this.drawTwoIcon.setAttribute('src','images/draw-2.svg');
+
+                // Clear drop down
+                while (dropDownObj.gridContain.firstChild) {
+                    dropDownObj.gridContain.removeChild(dropDownObj.gridContain.firstChild)
+                }
+
+                // Reset card display
+                this.frontCard.setAttribute('src','images/card-back-red.svg');
+                this.backCard.setAttribute('src','images/card-back-black.svg');
+            },
+
+            // Sets the width of the interface using a predefined aspect ratio
+            setWidth: function() {
+                let width = Math.floor((0.8 * window.innerHeight)/1.965);
+
+                interfaceObj.gridContainer.style.maxWidth = `${width}px`;
+
+                dropDownObj.dropDown.style.width = `${width}px`;
+            }
+        }
+
+
+        // -- Event Listeners --
+
+
+        // Open and close drop down menu
+
+        dropDownObj.infoBtn.addEventListener('click',dropDownObj.open);
+
+        dropDownObj.closeBtn.addEventListener('click', dropDownObj.close);
+
+        // Interface buttons
+
+        interfaceObj.drawOneBtn.addEventListener('click', function() {
+            interfaceObj.drawCard();
+            interfaceObj.cardsLeft();
+        })
+
+        interfaceObj.drawTwoBtn.addEventListener('click', function() {
+            interfaceObj.drawTwoCards();
+            interfaceObj.cardsLeft();
+        })
+
+        interfaceObj.shuffleBtn.addEventListener('click', function() {
+            interfaceObj.shuffleDeck();
+        })
+
+        // Size adjusting
+
+        window.addEventListener('resize', interfaceObj.setWidth);
+
+
+        // Functions to be run on page load
+
+        deckObj.shuffle();
+
+        interfaceObj.setWidth();
+
+        }());
+
+    </script>
+</body>
+</html>
